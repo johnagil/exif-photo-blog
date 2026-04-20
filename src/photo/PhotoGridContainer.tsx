@@ -32,6 +32,9 @@ export default function PhotoGridContainer({
   sidebar?: ReactNode
   className?: string
 } & ComponentProps<typeof PhotoGrid>) {
+  const shouldRenderInitialGrid =
+    !MASONRY_GRID_ENABLED || count <= photos.length;
+
   const [
     shouldAnimateDynamicItems,
     setShouldAnimateDynamicItems,
@@ -52,7 +55,7 @@ export default function PhotoGridContainer({
             animateOnFirstLoadOnly
           />}
         <div className={GRID_SPACE_CLASSNAME}>
-          {!MASONRY_GRID_ENABLED && (
+          {shouldRenderInitialGrid && (
             <PhotoGrid {...{
               photos,
               ...categories,
@@ -60,7 +63,7 @@ export default function PhotoGridContainer({
               onAnimationComplete,
             }} />
           )}
-          {(count > photos.length || MASONRY_GRID_ENABLED) &&
+          {count > photos.length &&
             <PhotoGridInfinite {...{
               cacheKey,
               initialPhotos: MASONRY_GRID_ENABLED ? photos : undefined,
