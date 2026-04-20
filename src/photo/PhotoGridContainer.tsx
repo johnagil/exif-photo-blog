@@ -8,6 +8,7 @@ import AnimateItems from '@/components/AnimateItems';
 import { ComponentProps, useCallback, useState, ReactNode } from 'react';
 import { GRID_SPACE_CLASSNAME } from '@/components';
 import { SortBy } from './sort';
+import { MASONRY_GRID_ENABLED } from '@/app/config';
 
 export default function PhotoGridContainer({
   cacheKey,
@@ -51,15 +52,18 @@ export default function PhotoGridContainer({
             animateOnFirstLoadOnly
           />}
         <div className={GRID_SPACE_CLASSNAME}>
-          <PhotoGrid {...{
-            photos,
-            ...categories,
-            animateOnFirstLoadOnly,
-            onAnimationComplete,
-          }} />
-          {count > photos.length &&
+          {!MASONRY_GRID_ENABLED && (
+            <PhotoGrid {...{
+              photos,
+              ...categories,
+              animateOnFirstLoadOnly,
+              onAnimationComplete,
+            }} />
+          )}
+          {(count > photos.length || MASONRY_GRID_ENABLED) &&
             <PhotoGridInfinite {...{
               cacheKey,
+              initialPhotos: MASONRY_GRID_ENABLED ? photos : undefined,
               initialOffset: photos.length,
               sortBy,
               sortWithPriority,

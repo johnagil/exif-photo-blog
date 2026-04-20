@@ -13,6 +13,7 @@ import useVisibility from '@/utility/useVisibility';
 import { SortBy } from './sort';
 import { SWR_KEYS } from '@/swr';
 import { useAppText } from '@/i18n/state/client';
+import { MASONRY_GRID_ENABLED } from "@/app/config";
 
 const SIZE_KEY_SEPARATOR = '__';
 const getSizeFromKey = (key: string) =>
@@ -24,6 +25,7 @@ export type RevalidatePhoto = (
 ) => Promise<any>;
 
 export default function InfinitePhotoScroll({
+  initialPhotos,
   cacheKey,
   initialOffset,
   itemsPerPage,
@@ -44,6 +46,7 @@ export default function InfinitePhotoScroll({
   includeHiddenPhotos,
   children,
 }: {
+  initialPhotos?: Photo[]
   initialOffset: number
   itemsPerPage: number
   sortBy?: SortBy
@@ -168,18 +171,32 @@ export default function InfinitePhotoScroll({
       </button>
     </div>;
 
+  // combine all photos to build a masonry grid without random gaps appearing
+  const allFlattenedPhotos = (initialPhotos ?? []).concat(data?.flat() ?? []);
+
   return (
     <>
-      {data?.map((photos, index) => (
-        children({
-          key: `${cacheKey}-${index}`,
-          photos, 
-          onLastPhotoVisible: index === data.length - 1
-            ? advance
-            : undefined,
-          revalidatePhoto,
-        })
-      ))}
+      {MASONRY_GRID_ENABLED
+        ? // feed the combined list into a single grid block for better layout flow
+          children({
+            key: cacheKey,
+            photos: allFlattenedPhotos,
+            onLastPhotoVisible: !isFinished ? advance : undefined,
+            revalidatePhoto,
+          })
+        : (
+            // for standard grid mode just pass each page of photos separately like normal
+            data?.map((photos, index) => (
+              children({
+                key: `${cacheKey}-${index}`,
+                photos,
+                onLastPhotoVisible: index === data.length - 1
+                  ? advance
+                  : undefined,
+                revalidatePhoto,
+              })
+            ))
+          )}
       {!isFinished && <div className={moreButtonClassName}>
         {wrapMoreButtonInGrid
           ? <AppGrid contentMain={renderMoreButton} />
