@@ -86,7 +86,9 @@ export default function PhotoGrid({
           photo,
           ...categories,
           selected: isSelected,
-          priority: prioritizeInitialPhotos ? index < 6 : undefined,
+          // prioritize more photos if masonry is enabled, without this i was getting lcp warnings
+          // there's probably a better way to do this, but not sure how without a lot of changes
+          priority: prioritizeInitialPhotos ? (MASONRY_GRID_ENABLED ? index < 36 : index < 6) : undefined,
           onVisible: index === photos.length - 1
             ? onLastPhotoVisible
             : undefined,
