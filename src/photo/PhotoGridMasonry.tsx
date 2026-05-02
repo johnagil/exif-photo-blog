@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { ReactNode, useState, useEffect } from "react";
-import { clsx } from "clsx/lite";
-import AnimateItems from "@/components/AnimateItems";
-import { GRID_GAP_CLASSNAME } from "@/components";
-import { DATA_KEY_PHOTO_GRID } from "@/admin/select/SelectPhotosProvider";
-import { Photo } from ".";
+import { ReactNode, useState, useEffect } from 'react';
+import { clsx } from 'clsx/lite';
+import AnimateItems from '@/components/AnimateItems';
+import { GRID_GAP_CLASSNAME } from '@/components';
+import { DATA_KEY_PHOTO_GRID } from '@/admin/select/SelectPhotosProvider';
+import { Photo } from '.';
 
 function useMasonryColumns(small?: boolean, isGridHighDensity?: boolean) {
   const [columns, setColumns] = useState(
@@ -30,8 +30,8 @@ function useMasonryColumns(small?: boolean, isGridHighDensity?: boolean) {
     };
 
     handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, [small, isGridHighDensity]);
 
   return columns;
@@ -75,9 +75,9 @@ export default function PhotoGridMasonry({
     let shortestColIndex = 0;
     let minHeight = colHeights[0];
     for (let i = 1; i < masonryColsCount; i++) {
-      // subtract a tiny fraction to create a tie breaker. 
-      // if columns are equal in height, this ensures the photo is placed in the left-most column.
-      // helps maintain left to right photo order
+      // Subtract tiny fraction to create tie breaker
+      // If columns equal in height, ensure photo's placed in left-most column
+      // (helps maintain left-to-right photo order)
       if (colHeights[i] < minHeight - 0.0001) {
         minHeight = colHeights[i];
         shortestColIndex = i;
@@ -104,12 +104,12 @@ export default function PhotoGridMasonry({
 
   return (
     <div {...{ [DATA_KEY_PHOTO_GRID]: selectable, className }}>
-      <div className={clsx("flex flex-row", GRID_GAP_CLASSNAME, "items-start")}>
+      <div className={clsx('flex flex-row', GRID_GAP_CLASSNAME, 'items-start')}>
         {partitionedColumns.map((colItems, i) => (
           <AnimateItems
             key={`col-${i}`}
-            className={clsx("flex flex-col flex-1", GRID_GAP_CLASSNAME)}
-            type={animate === false ? "none" : undefined}
+            className={clsx('flex flex-col flex-1', GRID_GAP_CLASSNAME)}
+            type={animate === false ? 'none' : undefined}
             canStart={canStart}
             duration={0.7}
             staggerDelay={0.04}

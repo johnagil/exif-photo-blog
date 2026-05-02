@@ -13,7 +13,6 @@ import useVisibility from '@/utility/useVisibility';
 import { SortBy } from './sort';
 import { SWR_KEYS } from '@/swr';
 import { useAppText } from '@/i18n/state/client';
-import { MASONRY_GRID_ENABLED } from "@/app/config";
 
 const SIZE_KEY_SEPARATOR = '__';
 const getSizeFromKey = (key: string) =>
@@ -47,6 +46,8 @@ export default function InfinitePhotoScroll({
   includeHiddenPhotos,
   children,
 }: {
+  // Required for masonry grid:
+  // initialPhotos necessary to build layout without random gaps
   initialPhotos?: Photo[]
   initialOffset: number
   itemsPerPage: number
@@ -174,32 +175,31 @@ export default function InfinitePhotoScroll({
       </button>
     </div>;
 
-  // combine all photos to build a masonry grid without random gaps appearing
-  const allFlattenedPhotos = (initialPhotos ?? []).concat(data?.flat() ?? []);
+  const flattenedPhotos = initialPhotos
+    ? initialPhotos.concat(data?.flat() ?? [])
+    : undefined;
 
   return (
     <>
-      {MASONRY_GRID_ENABLED
-        ? // feed the combined list into a single grid block for better layout flow
-          children({
-            key: cacheKey,
-            photos: allFlattenedPhotos,
-            onLastPhotoVisible: !isFinished ? advance : undefined,
-            revalidatePhoto,
-          })
+      {flattenedPhotos
+        ? children({
+          key: cacheKey,
+          photos: flattenedPhotos,
+          onLastPhotoVisible: !isFinished ? advance : undefined,
+          revalidatePhoto,
+        })
         : (
-            // for standard grid mode just pass each page of photos separately like normal
-            data?.map((photos, index) => (
-              children({
-                key: `${cacheKey}-${index}`,
-                photos,
-                onLastPhotoVisible: index === data.length - 1
-                  ? advance
-                  : undefined,
-                revalidatePhoto,
-              })
-            ))
-          )}
+          data?.map((photos, index) => (
+            children({
+              key: `${cacheKey}-${index}`,
+              photos,
+              onLastPhotoVisible: index === data.length - 1
+                ? advance
+                : undefined,
+              revalidatePhoto,
+            })
+          ))
+        )}
       {!isFinished && <div className={moreButtonClassName}>
         {wrapMoreButtonInGrid
           ? <AppGrid contentMain={renderMoreButton} />

@@ -5,14 +5,16 @@ import { PhotoSetCategory } from '../category';
 import PhotoMedium from './PhotoMedium';
 import { clsx } from 'clsx/lite';
 import AnimateItems from '@/components/AnimateItems';
-import { GRID_ASPECT_RATIO } from '@/app/config';
+import {
+  GRID_ASPECT_RATIO,
+  MASONRY_GRID_ENABLED,
+} from '@/app/config';
 import { useAppState } from '@/app/AppState';
 import SelectTileOverlay from '@/components/SelectTileOverlay';
 import { ReactNode } from 'react';
 import { GRID_GAP_CLASSNAME } from '@/components';
 import { useSelectPhotosState } from '@/admin/select/SelectPhotosState';
 import { DATA_KEY_PHOTO_GRID } from '@/admin/select/SelectPhotosProvider';
-import { MASONRY_GRID_ENABLED } from '@/app/config';
 import PhotoGridMasonry from './PhotoGridMasonry';
 
 export default function PhotoGrid({
@@ -86,9 +88,10 @@ export default function PhotoGrid({
           photo,
           ...categories,
           selected: isSelected,
-          // prioritize more photos if masonry is enabled, without this i was getting lcp warnings
-          // there's probably a better way to do this, but not sure how without a lot of changes
-          priority: prioritizeInitialPhotos ? (MASONRY_GRID_ENABLED ? index < 36 : index < 6) : undefined,
+          // More priority slots when masonry is on (helps LCP)
+          priority: prioritizeInitialPhotos
+            ? (MASONRY_GRID_ENABLED ? index < 36 : index < 6)
+            : undefined,
           onVisible: index === photos.length - 1
             ? onLastPhotoVisible
             : undefined,
@@ -102,7 +105,9 @@ export default function PhotoGrid({
     </div>;
   });
 
-  const allItems = photoNodes.concat(additionalTile ? [<div key="more">{additionalTile}</div>] : []);
+  const allItems = photoNodes.concat(
+    additionalTile ? [<div key="more">{additionalTile}</div>] : [],
+  );
 
   if (MASONRY_GRID_ENABLED) {
     return (
